@@ -1,0 +1,10 @@
+{
+  "name": "buzzr-ai",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "openai": "^2.0.4",
+    "puppeteer": "^13.4.0"
+  }
+}
