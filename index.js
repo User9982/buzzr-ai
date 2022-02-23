@@ -5,6 +5,7 @@ const { Configuration, OpenAIApi } = require("openai");
 
 let strangerMessage = [];
 let allUserMessages = [];
+let chatId = 1;
 
 const openaiSecrets = JSON.parse(
   fs.readFileSync(path.join(__dirname, "/secrets/openai.json"))
@@ -14,6 +15,10 @@ const configuration = new Configuration({
   apiKey: openaiSecrets.api_key,
 });
 const openai = new OpenAIApi(configuration);
+
+if (fs.existsSync(path.join(__dirname, "/historic"))) {
+  fs.rmdir(path.join(__dirname, "/historic"), { recursive: true }, () => {});
+}
 
 const load = async () => {
   const browser = await puppeteer.launch({ headless: false });
@@ -87,6 +92,20 @@ const load = async () => {
     return;
   };
 
+  const saveHistory = () => {
+    if (!fs.existsSync(path.join(__dirname, "/historic"))) {
+      fs.mkdirSync(path.join(__dirname, "/historic"));
+    }
+    fs.writeFileSync(
+      path.join(__dirname, "/historic/chatId-" + chatId + ".json"),
+      JSON.stringify(allUserMessages)
+    );
+    strangerMessage = [];
+    allUserMessages = [];
+    chatId++;
+    return;
+  };
+
   setInterval(async () => {
     const { allMessages } = await page.evaluate(() => {
       const allDivs = document.querySelectorAll(".theirmsg");
@@ -114,25 +133,27 @@ const load = async () => {
           strangerMessage = allMessages;
           allUserMessages.push(allMessages[allMessages.length - 1]);
           newMessage();
-        } else if (allMessages.length === 0) {
-          strangerMessage = [];
-          allUserMessages = [];
         }
       }
     }
   }, 1000);
 
   setInterval(async () => {
-    await page.evaluate(() => {
+    const isEnd = await page.evaluate(() => {
       const systemMessages = document.querySelectorAll(".sysmsg");
       const newChatBtn = document.querySelector(".btn-default.nextbtn");
 
       for (let key in systemMessages) {
         if (systemMessages[key].innerText === "A conversa foi encerrada.") {
           newChatBtn.click();
+          return true;
         }
       }
     });
+
+    if (isEnd) {
+      saveHistory();
+    }
   }, 1000);
 };
 
