@@ -39,7 +39,7 @@ const load = async () => {
     const { data } = await openai.createCompletion("text-davinci-001", {
       prompt: text,
       temperature: 0,
-      max_tokens: 60,
+      max_tokens: 1,
       top_p: 1,
       frequency_penalty: 0.5,
       presence_penalty: 0,
