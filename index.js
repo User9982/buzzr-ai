@@ -5,6 +5,7 @@ const { Configuration, OpenAIApi } = require("openai");
 
 let strangerMessage = [];
 let allUserMessages = [];
+let typing = false;
 let chatId = 1;
 
 const openaiSecrets = JSON.parse(
@@ -80,18 +81,20 @@ const load = async () => {
   };
 
   const sendMessage = async (message, name) => {
-    await page.focus(".chattext");
-    typing = true;
-    await page.keyboard.type(message, { delay: 150 });
-    typing = false;
-    await page.evaluate(() => {
-      document
-        .querySelectorAll(".btn.btn-default.chatstuffarea.buttonmargin")
-        ["0"].click();
-    });
-    allUserMessages.push(name + ":" + message);
-    console.log(name + ":" + message);
-    return;
+    if (!typing) {
+      await page.focus(".chattext");
+      typing = true;
+      await page.keyboard.type(message, { delay: 150 });
+      typing = false;
+      await page.evaluate(() => {
+        document
+          .querySelectorAll(".btn.btn-default.chatstuffarea.buttonmargin")
+          ["0"].click();
+      });
+      allUserMessages.push(name + ":" + message);
+      console.log(name + ":" + message);
+      return;
+    }
   };
 
   const saveHistory = async () => {
@@ -105,6 +108,7 @@ const load = async () => {
     await page.$eval(".chattext", (el) => (el.value = ""));
     strangerMessage = [];
     allUserMessages = [];
+    typing = false;
     chatId++;
     return;
   };
