@@ -92,7 +92,7 @@ const load = async () => {
     return;
   };
 
-  const saveHistory = () => {
+  const saveHistory = async () => {
     if (!fs.existsSync(path.join(__dirname, "/historic"))) {
       fs.mkdirSync(path.join(__dirname, "/historic"));
     }
@@ -100,6 +100,7 @@ const load = async () => {
       path.join(__dirname, "/historic/chatId-" + chatId + ".json"),
       JSON.stringify(allUserMessages)
     );
+    await page.$eval(".chattext", (el) => (el.value = ""));
     strangerMessage = [];
     allUserMessages = [];
     chatId++;
