@@ -40,7 +40,6 @@ const load = async () => {
     const { data } = await openai.createCompletion("text-davinci-001", {
       prompt: text,
       temperature: 0,
-      max_tokens: 60,
       top_p: 1,
       frequency_penalty: 0.5,
       presence_penalty: 0,
@@ -87,21 +86,14 @@ const load = async () => {
       typing = true;
       await page.keyboard.type(message, { delay: 150 });
       typing = false;
+      await page.evaluate(() => {
+        document
+          .querySelectorAll(".btn.btn-default.chatstuffarea.buttonmargin")
+          ["0"].click();
+      });
     } else {
-      const interval = setInterval(async () => {
-        if (!typing) {
-          clearInterval(interval);
-          typing = true;
-          await page.keyboard.type(message, { delay: 150 });
-          typing = false;
-        }
-      }, 1000);
+      sendMessage(message, name);
     }
-    await page.evaluate(() => {
-      document
-        .querySelectorAll(".btn.btn-default.chatstuffarea.buttonmargin")
-        ["0"].click();
-    });
     allUserMessages.push(name + ":" + message);
     console.log(name + ":" + message);
     return;
