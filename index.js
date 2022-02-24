@@ -95,7 +95,8 @@ const load = async () => {
       console.log(name + ":" + message);
       return;
     } else {
-      sendMessage(message, name);
+      await sendMessage(message, name);
+      return;
     }
   };
 
