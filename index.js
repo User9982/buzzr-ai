@@ -6,6 +6,7 @@ const { Configuration, OpenAIApi } = require("openai");
 let strangerMessage = [];
 let allUserMessages = [];
 let chatId = 1;
+let typing = false;
 
 const openaiSecrets = JSON.parse(
   fs.readFileSync(path.join(__dirname, "/secrets/openai.json"))
@@ -59,7 +60,8 @@ const load = async () => {
             );
           }
           if (messageStr.indexOf("Estranho: ") === -1) {
-            sendMessage(messageStr, name);
+            await sendMessage(messageStr, name);
+            return;
           }
         }
       }
@@ -81,7 +83,20 @@ const load = async () => {
 
   const sendMessage = async (message, name) => {
     await page.focus(".chattext");
-    await page.keyboard.type(message, { delay: 150 });
+    if (!typing) {
+      typing = true;
+      await page.keyboard.type(message, { delay: 150 });
+      typing = false;
+    } else {
+      const interval = setInterval(async () => {
+        if (!typing) {
+          clearInterval(interval);
+          typing = true;
+          await page.keyboard.type(message, { delay: 150 });
+          typing = false;
+        }
+      }, 1000);
+    }
     await page.evaluate(() => {
       document
         .querySelectorAll(".btn.btn-default.chatstuffarea.buttonmargin")
@@ -133,7 +148,7 @@ const load = async () => {
         ) {
           strangerMessage = allMessages;
           allUserMessages.push(allMessages[allMessages.length - 1]);
-          newMessage();
+          await newMessage();
         }
       }
     }
