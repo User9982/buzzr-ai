@@ -39,11 +39,11 @@ const load = async () => {
 
     const { data } = await openai.createCompletion("text-davinci-001", {
       prompt: text,
-      temperature: 0,
+      temperature: 0.7,
+      max_tokens: 64,
       top_p: 1,
-      frequency_penalty: 0.5,
+      frequency_penalty: 0,
       presence_penalty: 0,
-      stop: ["\n"],
     });
 
     let AiMessage = data.choices[0].text;
