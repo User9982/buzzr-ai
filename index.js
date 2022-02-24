@@ -81,8 +81,8 @@ const load = async () => {
   };
 
   const sendMessage = async (message, name) => {
-    await page.focus(".chattext");
     if (!typing) {
+      await page.focus(".chattext");
       typing = true;
       await page.keyboard.type(message, { delay: 150 });
       typing = false;
@@ -91,12 +91,12 @@ const load = async () => {
           .querySelectorAll(".btn.btn-default.chatstuffarea.buttonmargin")
           ["0"].click();
       });
+      allUserMessages.push(name + ":" + message);
+      console.log(name + ":" + message);
+      return;
     } else {
       sendMessage(message, name);
     }
-    allUserMessages.push(name + ":" + message);
-    console.log(name + ":" + message);
-    return;
   };
 
   const saveHistory = async () => {
